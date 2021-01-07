@@ -1,5 +1,4 @@
 <template>
-<div>
    <!--Idea item-->
     <article class="p-3 mb-4 rounded-lg bg-gray-300 sm:flex sm:items-center">
       <section class="text-center sm:flex-1 sm:text-left">
@@ -16,7 +15,6 @@
         </nav>
       </section>
     </article>
-</div>
 </template>
 
 <script>
