@@ -5,9 +5,19 @@
   <div class="w-full bg-gray-100 shadow-lg p-4 rounded-lg">
     <h1 class="mb-5 text-4xl text-center">Ideabox</h1>
 
-    <AddIdea :user="user" @do-login="doLogin" @do-logout="doLogout" @add-idea="addIdea"/>
+    <AddIdea 
+      :user="user" 
+      @do-login="doLogin" 
+      @do-logout="doLogout" 
+      @add-idea="addIdea"/>
 
-    <AppIdea v-for="(idea, $index) in ideas" :key="$index" :idea="idea" @vote-idea="voteIdea"/>
+    <AppIdea 
+      v-for="(idea, $index) in ideas" 
+      :key="$index" 
+      :idea="idea" 
+      :user="user"
+      @vote-idea="voteIdea"
+      />
 
 
   </div>
@@ -33,19 +43,37 @@ export default {
     const ideas = ref([]);
     let user = ref(null);
 
-    auth.onAuthStateChanged(async auth => (user.value = auth ?  auth : null));
+    auth.onAuthStateChanged(async auth => {
+      let userVotes;
 
-    db.collection("ideas").onSnapshot(snapshot =>{
+      if(auth){
+        user.value = auth;
+        userVotes = db.collection("votes").doc(user.value.uid).onSnapshot(doc =>{
+          if(doc.exists){
+            let document = doc.data();
+            if("ideas" in document){
+              user.value.votes = document.ideas;
+            }
+          }
+        })
+      }else{
+        user.value = null;
+        userVotes && userVotes();
+      }
+    });
+
+    db.collection("ideas").orderBy("votes", "desc").onSnapshot(snapshot =>{
       const newIdeas = [];
 
       snapshot.docs.forEach(doc => {
-        let { name, user, userName, votes } = doc.data();
+        let { name, user, userName, votes, createdAt } = doc.data();
         let id = doc.id;
 
         newIdeas.push({
           name,
           user,
           userName,
+          createdAt,
           votes,
           id
         });
@@ -80,6 +108,7 @@ export default {
           name: data.value,
           user: user.value.uid,
           userName: user.value.displayName,
+          createdAt: Date.now(),
           votes: 0
         })
       }catch(error){
@@ -89,9 +118,22 @@ export default {
 
     const voteIdea  = async ({ id, type }) =>{
       try{
-        db.collection("ideas").doc(id).update({
+        let votes = await db.collection("votes").doc(user.value.uid).get();
+
+        if(votes.exists){
+          votes = votes.data().ideas;
+          if(votes.find(vote => vote === id))
+          throw new Error("User already voted!")
+        }
+
+        await db.collection("ideas").doc(id).update({
           votes: firebase.firestore.FieldValue.increment(type ? 1 : -1)
         })
+
+        await db.collection("votes").doc(user.value.uid).set({
+          ideas: firebase.firestore.FieldValue.arrayUnion(id)
+        },{merge: true}
+        );
       }catch(error){
         console.error(error)
       }
