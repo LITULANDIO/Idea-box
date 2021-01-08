@@ -7,7 +7,7 @@
 
     <AddIdea :user="user" @do-login="doLogin" @do-logout="doLogout" @add-idea="addIdea"/>
 
-    <AppIdea v-for="(idea, $index) in ideas" :key="$index" :idea="idea"/>
+    <AppIdea v-for="(idea, $index) in ideas" :key="$index" :idea="idea" @vote-idea="voteIdea"/>
 
 
   </div>
@@ -85,10 +85,19 @@ export default {
       }catch(error){
         console.log(error)
       }
-
     }
 
-    return { ideas, user, doLogin, doLogout, addIdea}
+    const voteIdea  = async ({ id, type }) =>{
+      try{
+        db.collection("ideas").doc(id).update({
+          votes: firebase.firestore.FieldValue.increment(type ? 1 : -1)
+        })
+      }catch(error){
+        console.error(error)
+      }
+    }
+
+    return { ideas, user, doLogin, doLogout, addIdea, voteIdea }
 
   }
 };

@@ -10,8 +10,8 @@
       <section class="pt-3 border-t-2 mt-6 border-black sm:pt-0 sm:pl-3 sm:border-t-0 sm:border-l-2 sm:mt-0 sm:flex sm:items-center">
         <h3 class="text-3xl font-bold text-center ml-3 mr-3">{{ idea.votes }}</h3>
         <nav class="flex justify-center sm:block">
-          <img class="w-10 cursor-pointer" src="@/assets/arrow-up.svg" alt="Vote up" />
-          <img class="w-10 cursor-pointer transform rotate-180" src="@/assets/arrow-up.svg" alt="Vote down" />
+          <img @click="voteIdea(true)" class="w-10 cursor-pointer" src="@/assets/arrow-up.svg" alt="Vote up" />
+          <img @click="voteIdea(false)" class="w-10 cursor-pointer transform rotate-180" src="@/assets/arrow-up.svg" alt="Vote down" />
         </nav>
       </section>
     </article>
@@ -21,12 +21,21 @@
 
 export default {
     name: 'AppIdea',
+    emits: ["vote-idea"],
     props:{
         idea:{
             type: Object,
             required: true
         }
+    },
+    setup(props, { emit }){
+        const voteIdea = (type)=>{
+          return emit("vote-idea",{ type,id: props.idea.id });
+        };
+        
+        return { voteIdea };
     }
+    
 
 }
 </script>
