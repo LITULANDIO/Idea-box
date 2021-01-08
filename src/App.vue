@@ -20,7 +20,6 @@
 <script>
 import AppIdea from '@/components/AppIdea';
 import AddIdea from '@/components/AddIdea';
-import seed from "@/seed.json";
 import { ref } from "vue";
 import { auth, firebase, db } from "@/firebase.js";
 
@@ -31,10 +30,30 @@ export default {
     AddIdea
   },
   setup(){
-    const ideas = ref(seed.ideas);
+    const ideas = ref([]);
     let user = ref(null);
 
     auth.onAuthStateChanged(async auth => (user.value = auth ?  auth : null));
+
+    db.collection("ideas").onSnapshot(snapshot =>{
+      const newIdeas = [];
+
+      snapshot.docs.forEach(doc => {
+        let { name, user, userName, votes } = doc.data();
+        let id = doc.id;
+
+        newIdeas.push({
+          name,
+          user,
+          userName,
+          votes,
+          id
+        });
+      });
+      ideas.value = newIdeas;
+    },
+    error =>console.error(error)
+    );
 
     const doLogin = async ()=>{
       const provider = new firebase.auth.GoogleAuthProvider();
