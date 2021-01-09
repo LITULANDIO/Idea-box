@@ -2,6 +2,16 @@
 
 <!--main container-->
 <div class="container mx-auto p-4">
+
+   <teleport to="body">
+      <RemoveIdea
+        v-if="isModalActive"
+        :name="ideaToRemove.name"
+        @remove-ok="removeIdea"
+        @remove-cancel="isModalActive = !isModalActive"
+      />
+    </teleport>
+
   <div class="w-full bg-gray-100 shadow-lg p-4 rounded-lg">
     <h1 class="mb-5 text-4xl text-center">Ideabox</h1>
 
@@ -12,11 +22,12 @@
       @add-idea="addIdea"/>
 
     <AppIdea 
-      v-for="(idea, $index) in ideas" 
-      :key="$index" 
+      v-for="idea in ideas" 
+      :key="idea.createdAt" 
       :idea="idea" 
       :user="user"
       @vote-idea="voteIdea"
+      @remove-idea="showRemoveIdeaModal"
       />
 
 
@@ -30,18 +41,23 @@
 <script>
 import AppIdea from '@/components/AppIdea';
 import AddIdea from '@/components/AddIdea';
-import { ref } from "vue";
 import { auth, firebase, db } from "@/firebase.js";
+import { ref, defineAsyncComponent } from "vue";
+const RemoveIdea = defineAsyncComponent(() => import("@/components/RemoveIdea.vue"));
 
 export default {
   name: "App",
   components: {
     AppIdea,
-    AddIdea
+    AddIdea,
+    RemoveIdea
   },
   setup(){
     const ideas = ref([]);
     let user = ref(null);
+
+    const isModalActive = ref(false);
+    let ideaToRemove = {};
 
     auth.onAuthStateChanged(async auth => {
       let userVotes;
@@ -138,18 +154,75 @@ export default {
         console.error(error)
       }
     }
+      const showRemoveIdeaModal = ({ name, id }) => {
+        ideaToRemove.name = name;
+        ideaToRemove.id = id;
+        isModalActive.value = true;
+      };
+      const removeIdea = async () => {
+        try {
+          await db.collection("ideas").doc(ideaToRemove.id).delete();
+          ideaToRemove = {};
+          isModalActive.value = false;
+        } catch (error) {
+          console.error(error);
+        }
+      };
+    
 
-    return { ideas, user, doLogin, doLogout, addIdea, voteIdea }
+    return { 
+      ideas, 
+      user, 
+      doLogin, 
+      doLogout, 
+      addIdea, 
+      voteIdea, 
+      isModalActive, 
+      ideaToRemove, 
+      showRemoveIdeaModal, 
+      removeIdea }
 
   }
 };
 </script>
 
 <style>
-.users-actions{
+.idea {
+  transition: all 0.8s ease;
+}
+.list-complete-enter-from,
+.list-complete-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
+.list-complete-leave-active {
+  position: absolute;
+}
+.list-complete-move {
+  transition: transform 0.3s ease;
+}
+.idea {
+  @apply bg-gray-200;
+}
+.idea:nth-of-type(1) {
+  @apply bg-red-500;
+}
+.idea:nth-of-type(2) {
+  @apply bg-red-400;
+}
+.idea:nth-of-type(3) {
+  @apply bg-red-300;
+}
+.idea:nth-of-type(4) {
+  @apply bg-red-200;
+}
+.idea:nth-of-type(5) {
+  @apply bg-red-100;
+}
+.user-actions {
   @apply mt-2 text-center;
 }
-.users-actions a{
+.user-actions a {
   font-weight: bold;
   text-decoration: underline;
 }

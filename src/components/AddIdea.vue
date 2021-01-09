@@ -15,10 +15,10 @@
             value="Add idea"
         />
       </form>
-      <p class="users-actions" v-if="!user">
+      <p class="user-actions" v-if="!user">
         Please <a @click="doLogin" href="#">login</a> first
       </p>
-      <p class="users-actions" v-else> 
+      <p class="user-actions" v-else> 
         Hi 👋{{ user.displayName }}.  <a @click="doLogout" href="#">logout</a>
       </p>
     </section> 
