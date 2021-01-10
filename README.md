@@ -1,5 +1,7 @@
 # idea-box-live
 
+enlace directo a la aplicación: [IDEA BOX](https://idea-box-1f66f.web.app/);
+
 ## Project setup
 ```
 npm install

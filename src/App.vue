@@ -21,15 +21,17 @@
       @do-logout="doLogout" 
       @add-idea="addIdea"/>
 
+  <transition-group name="list-complete">
     <AppIdea 
-      v-for="idea in ideas" 
-      :key="idea.createdAt" 
+      v-for="(idea, index) in ideas" 
+      :key="index" 
       :idea="idea" 
       :user="user"
       @vote-idea="voteIdea"
       @remove-idea="showRemoveIdeaModal"
+      class="idea"
       />
-
+  </transition-group>
 
   </div>
 
@@ -161,7 +163,9 @@ export default {
       };
       const removeIdea = async () => {
         try {
+       
           await db.collection("ideas").doc(ideaToRemove.id).delete();
+        
           ideaToRemove = {};
           isModalActive.value = false;
         } catch (error) {
@@ -188,7 +192,8 @@ export default {
 
 <style>
 .idea {
-  transition: all 0.8s ease;
+  transition: all 0.3s ease;
+
 }
 .list-complete-enter-from,
 .list-complete-leave-to {

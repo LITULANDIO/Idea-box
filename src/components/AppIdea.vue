@@ -1,6 +1,6 @@
 <template>
    <!--Idea item-->
-    <article class="p-3 mb-4 rounded-lg bg-gray-300 sm:flex sm:items-center">
+    <article class="p-3 mb-4 rounded-lg bg-gray-300 sm:flex sm:items-center opacity-100	">
          <img
             v-if="userIdea"
             @click="removeIdea"
@@ -8,7 +8,7 @@
             src="@/assets/remove.svg"
             alt="Remove idea"
         />
-      <section class="text-center sm:flex-1 sm:text-left">
+      <section class="text-center sm:flex-1 sm:text-left" >
         <h2 class="text-xl sm:leading-6 sm:text-2xl">{{ idea.name }}</h2>
         <small>{{ idea.userName }}</small>
       </section>
@@ -70,5 +70,7 @@ export default {
 </script>
 
 <style>
+
+
 
 </style>
