@@ -1,6 +1,6 @@
-# idea-box-live
+# 💡IDEA - BOX💡
 
-enlace directo a la aplicación: [IDEA BOX](https://idea-box-1f66f.web.app/);
+Enlace directo a la aplicación: [IDEA BOX](https://idea-box-1f66f.web.app/)
 
 ## Project setup
 ```
